@@ -8,6 +8,7 @@ public class GameController : MonoBehaviour
     public SoldierService soldierService;
     public MoveControl moveControl;
     public CanvasService canvasService;
+    public KingThreat kingThreat;
     public List<Soldier> soldierList;
     
     
@@ -30,6 +31,7 @@ public class GameController : MonoBehaviour
     public bool selectSoldierKey = true;
     public bool moveSoldierKey = true;
     public bool panelSelectKey = false;
+    public int threatCounter = 0;
     public int defeatedWhiteSoldierCount;
     public int defeatedBlackSoldierCount;
     public Transform lastPawnTransform;
@@ -40,6 +42,7 @@ public class GameController : MonoBehaviour
         boardService = new BoardService(this);
         moveControl = new MoveControl(this);
         canvasService = new CanvasService(this);
+        kingThreat = new KingThreat(this);
         soldierList = new List<Soldier>();
 
         soldierService = new SoldierService(this, boardService);
@@ -47,6 +50,7 @@ public class GameController : MonoBehaviour
 
         defeatedWhiteSoldierCount = 0;
         defeatedBlackSoldierCount = 23;
+        threatCounter = 0;
     }
 
 
@@ -95,17 +99,33 @@ public class GameController : MonoBehaviour
                 else if (moveControl.MoveSoldier(hitCollider, selectCollider, this)) // Soldier hareket ettirildi:
                 {
                     if (!moveControl.isRokMove)
+                    {
                         soldierService.ResetSoldierMoveLists(hitCollider);
-                    else
+                    }
+
+                    else // Rok ise:
                         moveControl.isRokMove = false;
-                    
+
                     // Oyun sırası değiştirme:
                     if (moveControl.orderOfMoves) moveControl.orderOfMoves = false;
                     else moveControl.orderOfMoves = true;
                     canvasService.UpdateText();
+
+                    if (kingThreat.kingThreatKey)
+                    {
+                        if (threatCounter >= 1)
+                        {
+                            VariableService.DeleteKingThreatVariableData(this);
+                            boardService.ResetAllSquareColor();
+                            threatCounter = 0;
+                        }
+                        else
+                            threatCounter++;
+                    }
                 }
                 else // Soldier hareket ettirilmedi:
                     soldierService.ResetSoldierMoveLists(selectCollider);
+
                 boardService.ResetAllSquareColor();
                 selectSoldierKey = true;
                 moveSoldierKey = true;

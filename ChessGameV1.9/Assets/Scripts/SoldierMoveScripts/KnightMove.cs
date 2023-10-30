@@ -93,23 +93,83 @@ public static class KnightMove
     }
 
 
-    public static bool MoveKnight(int soldierSquareID, Collider2D moveCollider, GameController gameController)
+
+    public static bool MoveDetectNotColor(Soldier newSoldier, GameController gameController)
     {
-        int moveSquareID = gameController.boardService.DetectSquareID(moveCollider.transform);
-        if (ListService.ListIntDetect(moveSquareID, movableLocationsID))
+        soldier = newSoldier;
+        int squareID = soldier.squareID;
+
+        if (soldier == null) Debug.LogError("Soldier nesnesi bulunamadı! (SoldierMoveScripts>KnightMove)");
+        else
         {
-            soldier = gameController.soldierService.GetSoldierObjectWithSquareID(soldierSquareID);
-            if (gameController.boardService.boardSquareSoldierID[moveSquareID] != 0)
-                FightMoveKnight(soldierSquareID, moveSquareID, gameController);
-            soldier.hasMoved = true;
-            soldier.squareID = moveSquareID;
-            gameController.boardService.boardSquareSoldierID[soldierSquareID] = 0;
-            gameController.boardService.boardSquareSoldierID[moveSquareID] = soldier.soldierID;
-            soldier.gameObject.transform.position = gameController.boardService.boardSquare[moveSquareID].transform.position;
-            soldier.gameObject.transform.position = new Vector3(soldier.gameObject.transform.position.x, soldier.gameObject.transform.position.y, -1f);
+            // 8 farklı yön kontrol edilecek:
+
+            if ((squareID % 8) >= 2 && (squareID / 8) >= 1) // no: 1
+            {
+                if (gameController.boardService.boardSquareSoldierID[squareID - 10] == 0)
+                {
+                    movableLocationsID.Add(squareID - 10);
+                }
+                else KingDetect(squareID - 10, gameController);
+            }
+            if ((squareID % 8) >= 1 && (squareID / 8) >= 2) // no: 2
+            {
+                if (gameController.boardService.boardSquareSoldierID[squareID - 17] == 0)
+                {
+                    movableLocationsID.Add(squareID - 17);
+                }
+                else KingDetect(squareID - 17, gameController);
+            }
+            if ((squareID % 8) < 7 && (squareID / 8) >= 2) // no: 3
+            {
+                if (gameController.boardService.boardSquareSoldierID[squareID - 15] == 0)
+                {
+                    movableLocationsID.Add(squareID - 15);
+                }
+                else KingDetect(squareID - 15, gameController);
+            }
+            if ((squareID % 8) < 6 && (squareID / 8) >= 1) // no: 4
+            {
+                if (gameController.boardService.boardSquareSoldierID[squareID - 6] == 0)
+                {
+                    movableLocationsID.Add(squareID - 6);
+                }
+                else KingDetect(squareID - 6, gameController);
+            }
+            if ((squareID % 8) < 6 && (squareID / 8) <= 6) // no: 5
+            {
+                if (gameController.boardService.boardSquareSoldierID[squareID + 10] == 0)
+                {
+                    movableLocationsID.Add(squareID + 10);
+                }
+                else KingDetect(squareID + 10, gameController);
+            }
+            if ((squareID % 8) < 7 && (squareID / 8) <= 5) // no: 6
+            {
+                if (gameController.boardService.boardSquareSoldierID[squareID + 17] == 0)
+                {
+                    movableLocationsID.Add(squareID + 17);
+                }
+                else KingDetect(squareID + 17, gameController);
+            }
+            if ((squareID % 8) >= 1 && (squareID / 8) <= 5) // no: 7
+            {
+                if (gameController.boardService.boardSquareSoldierID[squareID + 15] == 0)
+                {
+                    movableLocationsID.Add(squareID + 15);
+                }
+                else KingDetect(squareID + 15, gameController);
+            }
+            if ((squareID % 8) >= 2 && (squareID / 8) <= 6) // no: 8
+            {
+                if (gameController.boardService.boardSquareSoldierID[squareID + 6] == 0)
+                {
+                    movableLocationsID.Add(squareID + 6);
+                }
+                else KingDetect(squareID + 6, gameController);
+            }
             return true;
         }
-        else Debug.Log("Talep edilen hareket karesi erişilebilir gözükmüyor! (KnightMove.cs>MoveKnight)");
         return false;
     }
 
@@ -126,7 +186,50 @@ public static class KnightMove
     }
 
 
-    
+
+    private static void KingDetect(int squareID, GameController gameController)
+    {
+        if (gameController.boardService.boardSquareSoldierID[squareID] != 0 &&
+            soldier.isWhite != gameController.soldierService.GetSoldierObjectWithSquareID(squareID).isWhite &&
+            gameController.soldierService.GetSoldierObjectWithSquareID(squareID).soldierEnum == SoldierEnum.King)
+        {
+            gameController.boardService.SquareColorChange(squareID, ColorEnum.threatColor);
+            movableLocationsID.Add(squareID);
+            gameController.kingThreat.kingThreatKey = true;
+            gameController.kingThreat.threatedKingSquareID = squareID;
+            gameController.kingThreat.threatningSoldierSquareID = soldier.squareID;
+        }
+    }
+
+
+
+
+
+    public static bool MoveKnight(int soldierSquareID, Collider2D moveCollider, GameController gameController)
+    {
+        int moveSquareID = gameController.boardService.DetectSquareID(moveCollider.transform);
+        if (VariableService.ListIntDetect(moveSquareID, movableLocationsID))
+        {
+            soldier = gameController.soldierService.GetSoldierObjectWithSquareID(soldierSquareID);
+            if (gameController.boardService.boardSquareSoldierID[moveSquareID] != 0)
+                FightMoveKnight(soldierSquareID, moveSquareID, gameController);
+            soldier.hasMoved = true;
+            soldier.squareID = moveSquareID;
+            gameController.boardService.boardSquareSoldierID[soldierSquareID] = 0;
+            gameController.boardService.boardSquareSoldierID[moveSquareID] = soldier.soldierID;
+            soldier.gameObject.transform.position = gameController.boardService.boardSquare[moveSquareID].transform.position;
+            soldier.gameObject.transform.position = new Vector3(soldier.gameObject.transform.position.x, soldier.gameObject.transform.position.y, -1f);
+
+
+            // Şah tehditi algılama:
+            gameController.kingThreat.KingThreatDetect(soldier);
+
+            return true;
+        }
+        else Debug.Log("Talep edilen hareket karesi erişilebilir gözükmüyor! (KnightMove.cs>MoveKnight)");
+        return false;
+    }
+
 
 
     private static bool FightMoveKnight(int soldierSquareID, int moveSquareID, GameController gameController)

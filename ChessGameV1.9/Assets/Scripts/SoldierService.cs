@@ -174,17 +174,17 @@ public class SoldierService : MonoBehaviour
         Soldier soldier = gameController.soldierService.GetSoldierObjectWithSquareID(squareID);
 
         if (soldier.soldierEnum == SoldierEnum.Pawn)
-            ListService.ListDeleteAllDataInt(PawnMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(PawnMove.movableLocationsID);
         else if (soldier.soldierEnum == SoldierEnum.Knight)
-            ListService.ListDeleteAllDataInt(KnightMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(KnightMove.movableLocationsID);
         else if (soldier.soldierEnum == SoldierEnum.Bishop)
-            ListService.ListDeleteAllDataInt(BishopMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(BishopMove.movableLocationsID);
         else if (soldier.soldierEnum == SoldierEnum.Castle)
-            ListService.ListDeleteAllDataInt(CastleMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(CastleMove.movableLocationsID);
         else if (soldier.soldierEnum == SoldierEnum.Queen)
-            ListService.ListDeleteAllDataInt(QueenMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(QueenMove.movableLocationsID);
         else if (soldier.soldierEnum == SoldierEnum.King)
-            ListService.ListDeleteAllDataInt(KingMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(KingMove.movableLocationsID);
         else Debug.LogError("Programda bir hata var! (SoldierService.cs>ResetSoldierLists)");
     }
 
@@ -194,17 +194,36 @@ public class SoldierService : MonoBehaviour
         Soldier soldier = gameController.soldierService.GetSoldierObjectWithSquareID(squareID);
 
         if (soldier.soldierEnum == SoldierEnum.Pawn)
-            ListService.ListDeleteAllDataInt(PawnMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(PawnMove.movableLocationsID);
         else if (soldier.soldierEnum == SoldierEnum.Knight)
-            ListService.ListDeleteAllDataInt(KnightMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(KnightMove.movableLocationsID);
         else if (soldier.soldierEnum == SoldierEnum.Bishop)
-            ListService.ListDeleteAllDataInt(BishopMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(BishopMove.movableLocationsID);
         else if (soldier.soldierEnum == SoldierEnum.Castle)
-            ListService.ListDeleteAllDataInt(CastleMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(CastleMove.movableLocationsID);
         else if (soldier.soldierEnum == SoldierEnum.Queen)
-            ListService.ListDeleteAllDataInt(QueenMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(QueenMove.movableLocationsID);
         else if (soldier.soldierEnum == SoldierEnum.King)
-            ListService.ListDeleteAllDataInt(KingMove.movableLocationsID);
+            VariableService.ListDeleteAllDataInt(KingMove.movableLocationsID);
         else Debug.LogError("Programda bir hata var! (SoldierService.cs>ResetSoldierLists)");
     }
+
+
+    public void ResetSoldierMoveLists(Soldier soldier)
+    {
+        if (soldier.soldierEnum == SoldierEnum.Pawn)
+            VariableService.ListDeleteAllDataInt(PawnMove.movableLocationsID);
+        else if (soldier.soldierEnum == SoldierEnum.Knight)
+            VariableService.ListDeleteAllDataInt(KnightMove.movableLocationsID);
+        else if (soldier.soldierEnum == SoldierEnum.Bishop)
+            VariableService.ListDeleteAllDataInt(BishopMove.movableLocationsID);
+        else if (soldier.soldierEnum == SoldierEnum.Castle)
+            VariableService.ListDeleteAllDataInt(CastleMove.movableLocationsID);
+        else if (soldier.soldierEnum == SoldierEnum.Queen)
+            VariableService.ListDeleteAllDataInt(QueenMove.movableLocationsID);
+        else if (soldier.soldierEnum == SoldierEnum.King)
+            VariableService.ListDeleteAllDataInt(KingMove.movableLocationsID);
+        else Debug.LogError("Programda bir hata var! (SoldierService.cs>ResetSoldierLists)");
+    }
+
 }

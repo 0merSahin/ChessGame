@@ -78,6 +78,76 @@ public static class BishopMove
     }
 
 
+    public static bool MoveDetectNotColor(Soldier newSoldier, GameController gameController)
+    {
+        soldier = newSoldier;
+        int squareID = soldier.squareID;
+        
+        if (soldier == null) Debug.LogError("Soldier nesnesi bulunamadı! (SoldierMoveScripts>BishopMove)");
+        else
+        {
+            int[] boardSquareSoldierID = gameController.boardService.boardSquareSoldierID;
+            int squareIDTemp;
+
+            for (squareIDTemp = squareID - 9; squareIDTemp > -1 && (squareID % 8) != 0; squareIDTemp -= 9) // sol alt çapraz kontrol
+            {
+                if (boardSquareSoldierID[squareIDTemp] == 0)
+                {
+                    movableLocationsID.Add(squareIDTemp);
+                }
+                else
+                {
+                    KingDetect(squareIDTemp, gameController);
+                    break;
+                }
+                if (squareIDTemp % 8 == 7 || squareIDTemp % 8 == 0) break;
+            }
+            for (squareIDTemp = squareID - 7; squareIDTemp > -1 && (squareID % 8) != 7; squareIDTemp -= 7) // sağ alt çapraz kontrol
+            {
+                if (boardSquareSoldierID[squareIDTemp] == 0)
+                {
+                    movableLocationsID.Add(squareIDTemp);
+                }
+                else
+                {
+                    KingDetect(squareIDTemp, gameController);
+                    break;
+                }
+                if (squareIDTemp % 8 == 7 || squareIDTemp % 8 == 0) break;
+            }
+            for (squareIDTemp = squareID + 7; (squareIDTemp / 8) < 8 && (squareID % 8) != 0; squareIDTemp += 7) // sol üst çapraz kontrol
+            {
+                if (boardSquareSoldierID[squareIDTemp] == 0)
+                {
+                    movableLocationsID.Add(squareIDTemp);
+                }
+                else
+                {
+                    KingDetect(squareIDTemp, gameController);
+                    break;
+                }
+                if (squareIDTemp % 8 == 7 || squareIDTemp % 8 == 0) break;
+            }
+            for (squareIDTemp = squareID + 9; (squareIDTemp / 8) < 8 && (squareID % 8) != 7; squareIDTemp += 9) // sağ üst çapraz kontrol
+            {
+                if (boardSquareSoldierID[squareIDTemp] == 0)
+                {
+                    movableLocationsID.Add(squareIDTemp);
+                }
+                else
+                {
+                    KingDetect(squareIDTemp, gameController);
+                    break;
+                }
+                if (squareIDTemp % 8 == 7 || squareIDTemp % 8 == 0) break;
+            }
+            return true;
+        }
+        return false;
+    }
+
+
+
     private static void FightDetect(int squareIDTemp, GameController gameController)
     {
         if (gameController.boardService.boardSquareSoldierID[squareIDTemp] != 0 &&
@@ -89,10 +159,25 @@ public static class BishopMove
     }
 
 
+    private static void KingDetect(int squareIDTemp, GameController gameController)
+    {
+        if (gameController.boardService.boardSquareSoldierID[squareIDTemp] != 0 &&
+            soldier.isWhite != gameController.soldierService.GetSoldierObjectWithSquareID(squareIDTemp).isWhite &&
+            gameController.soldierService.GetSoldierObjectWithSquareID(squareIDTemp).soldierEnum == SoldierEnum.King)
+        {
+            gameController.boardService.SquareColorChange(squareIDTemp, ColorEnum.threatColor);
+            movableLocationsID.Add(squareIDTemp);
+            gameController.kingThreat.kingThreatKey = true;
+            gameController.kingThreat.threatedKingSquareID = squareIDTemp;
+            gameController.kingThreat.threatningSoldierSquareID = soldier.squareID;
+        }
+    }
+
+
     public static bool MoveBishop(int soldierSquareID, Collider2D moveCollider, GameController gameController)
     {
         int moveSquareID = gameController.boardService.DetectSquareID(moveCollider.transform);
-        if (ListService.ListIntDetect(moveSquareID, movableLocationsID))
+        if (VariableService.ListIntDetect(moveSquareID, movableLocationsID))
         {
             soldier = gameController.soldierService.GetSoldierObjectWithSquareID(soldierSquareID);
             if (gameController.boardService.boardSquareSoldierID[moveSquareID] != 0)
@@ -103,6 +188,10 @@ public static class BishopMove
             gameController.boardService.boardSquareSoldierID[moveSquareID] = soldier.soldierID;
             soldier.gameObject.transform.position = gameController.boardService.boardSquare[moveSquareID].transform.position;
             soldier.gameObject.transform.position = new Vector3(soldier.gameObject.transform.position.x, soldier.gameObject.transform.position.y, -1f);
+
+            // Şah tehditi algılama:
+            gameController.kingThreat.KingThreatDetect(soldier);
+
             return true;
         }
         else Debug.Log("Talep edilen hareket karesi erişilebilir gözükmüyor! (BishopMove.cs>MoveBishop)");

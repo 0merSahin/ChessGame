@@ -49,6 +49,44 @@ public class PawnMove : MonoBehaviour
     }
 
 
+    public static bool MoveDetectNotColor(Soldier newSoldier, GameController gameController)
+    {
+        soldier = newSoldier;
+        int squareID = soldier.squareID;
+
+        if (soldier == null) Debug.LogError("Soldier nesnesi bulunamadı! (SoldierMoveScripts>PawnMove)");
+        else
+        {
+            if (soldier.isWhite) addNumber = 8;
+            else addNumber = -8;
+
+            if (!soldier.hasMoved) // 2 kare gidebilir:
+            {
+                if (gameController.boardService.boardSquareSoldierID[squareID + addNumber] == 0)
+                {
+                    movableLocationsID.Add(squareID + addNumber);
+                    if (gameController.boardService.boardSquareSoldierID[squareID + (addNumber * 2)] == 0)
+                    {
+                        movableLocationsID.Add(squareID + (addNumber * 2));
+                    }
+                }
+            }
+            else // Tek kare gidebilir:
+            {
+                if (gameController.boardService.boardSquareSoldierID[squareID + addNumber] == 0)
+                {
+                    movableLocationsID.Add(squareID + addNumber);
+                }
+            }
+
+            KingDetect(squareID, gameController);
+            return true;
+        }
+        return false;
+    }
+
+
+
     private static void FightDetect(int squareID, GameController gameController)
     {
         if (soldier.isWhite)
@@ -84,10 +122,63 @@ public class PawnMove : MonoBehaviour
     }
 
 
+
+    private static void KingDetect(int squareID, GameController gameController)
+    {
+        Soldier targetSoldier = gameController.soldierService.GetSoldierObjectWithSquareID(squareID);
+        if (targetSoldier.soldierEnum == SoldierEnum.King)
+        {
+            if (soldier.isWhite)
+            {
+                if (squareID + 7 <= 63 && squareID % 8 != 0 && gameController.boardService.boardSquareSoldierID[squareID + 7] != 0 &&
+                    soldier.isWhite != gameController.soldierService.GetSoldierObjectWithSquareID(squareID + 7).isWhite)
+                {
+                    gameController.boardService.SquareColorChange(squareID + 7, ColorEnum.threatColor);
+                    movableLocationsID.Add(squareID + 7);
+                    gameController.kingThreat.kingThreatKey = true;
+                    gameController.kingThreat.threatedKingSquareID = squareID + 7;
+                    gameController.kingThreat.threatningSoldierSquareID = soldier.squareID;
+                }
+                if (squareID + 9 <= 63 && squareID % 8 != 7 && gameController.boardService.boardSquareSoldierID[squareID + 9] != 0 &&
+                    soldier.isWhite != gameController.soldierService.GetSoldierObjectWithSquareID(squareID + 9).isWhite)
+                {
+                    gameController.boardService.SquareColorChange(squareID + 9, ColorEnum.threatColor);
+                    movableLocationsID.Add(squareID + 9);
+                    gameController.kingThreat.kingThreatKey = true;
+                    gameController.kingThreat.threatedKingSquareID = squareID + 9;
+                    gameController.kingThreat.threatningSoldierSquareID = soldier.squareID;
+                }
+            }
+            else
+            {
+                if (squareID - 7 >= 0 && squareID % 8 != 7 && gameController.boardService.boardSquareSoldierID[squareID - 7] != 0 &&
+                    soldier.isWhite != gameController.soldierService.GetSoldierObjectWithSquareID(squareID - 7).isWhite)
+                {
+                    gameController.boardService.SquareColorChange(squareID - 7, ColorEnum.threatColor);
+                    movableLocationsID.Add(squareID - 7);
+                    gameController.kingThreat.kingThreatKey = true;
+                    gameController.kingThreat.threatedKingSquareID = squareID - 7;
+                    gameController.kingThreat.threatningSoldierSquareID = soldier.squareID;
+                }
+                if (squareID - 9 >= 0 && squareID % 8 != 0 && gameController.boardService.boardSquareSoldierID[squareID - 9] != 0 &&
+                    soldier.isWhite != gameController.soldierService.GetSoldierObjectWithSquareID(squareID - 9).isWhite)
+                {
+                    gameController.boardService.SquareColorChange(squareID - 9, ColorEnum.threatColor);
+                    movableLocationsID.Add(squareID - 9);
+                    gameController.kingThreat.kingThreatKey = true;
+                    gameController.kingThreat.threatedKingSquareID = squareID - 9;
+                    gameController.kingThreat.threatningSoldierSquareID = soldier.squareID;
+                }
+            }
+        }
+    }
+
+
+
     public static bool MovePawn(int soldierSquareID, Collider2D moveCollider, GameController gameController)
     {
         int moveSquareID = gameController.boardService.DetectSquareID(moveCollider.transform);
-        if (ListService.ListIntDetect(moveSquareID, movableLocationsID))
+        if (VariableService.ListIntDetect(moveSquareID, movableLocationsID))
         {
             soldier = gameController.soldierService.GetSoldierObjectWithSquareID(soldierSquareID);
 
@@ -153,7 +244,9 @@ public class PawnMove : MonoBehaviour
                     return false;
                 }
             }
-            
+
+            // Şah tehditi algılama:
+            gameController.kingThreat.KingThreatDetect(soldier);
 
             return true;
         }

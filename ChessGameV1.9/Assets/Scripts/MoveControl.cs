@@ -31,13 +31,11 @@ public class MoveControl : MonoBehaviour
             if (!TurnCheck(soldier, gameController))
             {
                 print("Sıra seçilen taşta değil! (MoveControl.cs>SelectSoldier)");
-                collider = null;
                 return;
             }
             
             // Gidebileceği kareler işaretlenecek:
             boardService.SquareColorChange(squareID, ColorEnum.selectColor);
-
             if (soldier.soldierEnum == SoldierEnum.Pawn)
                 PawnMove.MoveDetect(squareID, soldierID, gameController);
             else if (soldier.soldierEnum == SoldierEnum.Knight)
@@ -62,6 +60,9 @@ public class MoveControl : MonoBehaviour
     }
 
 
+
+
+
     public bool MoveSoldier(Collider2D moveCollider, Collider2D soldierCollider, GameController gameController)
     {
         int soldierSquareID = gameController.boardService.DetectSquareID(soldierCollider.transform);
@@ -79,6 +80,7 @@ public class MoveControl : MonoBehaviour
         else if (soldier.soldierEnum == SoldierEnum.King)
             return KingMove.MoveKing(soldierSquareID, moveCollider, gameController);
         else Debug.LogError("Hareket ettirilecek obje yakalanamadı! (MoveControl>MoveSoldier)");
+
         return false;
     }
 

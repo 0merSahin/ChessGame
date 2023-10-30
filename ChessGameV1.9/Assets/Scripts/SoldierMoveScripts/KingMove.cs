@@ -170,7 +170,7 @@ public static class KingMove
     public static bool MoveKing(int soldierSquareID, Collider2D moveCollider, GameController gameController)
     {
         int moveSquareID = gameController.boardService.DetectSquareID(moveCollider.transform);
-        if (ListService.ListIntDetect(moveSquareID, movableLocationsID))
+        if (VariableService.ListIntDetect(moveSquareID, movableLocationsID))
         {
             soldier = gameController.soldierService.GetSoldierObjectWithSquareID(soldierSquareID);
             if (gameController.boardService.boardSquareSoldierID[moveSquareID] != 0)

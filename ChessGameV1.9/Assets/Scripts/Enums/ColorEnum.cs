@@ -7,5 +7,6 @@ public enum ColorEnum
     blackColor,
     movableColor,
     redColor,
-    rogColor
+    rogColor,
+    threatColor,
 }

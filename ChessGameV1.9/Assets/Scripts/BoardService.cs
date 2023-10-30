@@ -15,6 +15,7 @@ public class BoardService : MonoBehaviour
     Color movableColor = new Color(0f, 0.5f, 0f, 1f);
     Color redColor = new Color(1f, 0.2f, 0f, 1f);
     Color rogColor = new Color(0f, 0.5f, 1f, 1f);
+    Color threatColor = new Color(1f, 0f, 1f, 1f);
 
     
     public BoardService(GameController gameController)
@@ -97,7 +98,11 @@ public class BoardService : MonoBehaviour
         {
             gameController.boardService.boardSquare[squareID].GetComponent<SpriteRenderer>().color = rogColor;
         }
-        else Debug.LogError("Fonksiyona gönderdiğiniz renk bulunamadı!");
+        else if (color == ColorEnum.threatColor)
+        {
+            gameController.boardService.boardSquare[squareID].GetComponent<SpriteRenderer>().color = threatColor;
+        }
+        else Debug.LogError("Fonksiyona gönderdiğiniz renk bulunamadı! (BoardService.cs>SquareColorChange)");
     }
 
 
@@ -119,7 +124,27 @@ public class BoardService : MonoBehaviour
                     if (matrisX % 2 == 0) gameController.boardService.SquareColorChange(squareID, ColorEnum.whiteColor);
                     else gameController.boardService.SquareColorChange(squareID, ColorEnum.blackColor);
                 }
+                reColoredSquare[squareID] = false;
             }
+        }
+
+        if (gameController.kingThreat.kingThreatKey) // King tehditi varsa buraya girecek ve boyayacak:
+        {
+            if (gameController.kingThreat.threatedKingSquareID != -1)
+            {
+                int threatetKingSquareID = gameController.kingThreat.threatedKingSquareID;
+                gameController.boardService.SquareColorChange(threatetKingSquareID, ColorEnum.threatColor);
+                gameController.boardService.reColoredSquare[threatetKingSquareID] = true;
+            }
+            else Debug.LogError("Şah tehditi square boyamasında bir hata var! (BoardService.cs>ResetAllSquareColor)");
+
+            if (gameController.kingThreat.threatningSoldierSquareID != -1)
+            {
+                int threatningSoldierSquareID = gameController.kingThreat.threatningSoldierSquareID;
+                gameController.boardService.SquareColorChange(threatningSoldierSquareID, ColorEnum.threatColor);
+                gameController.boardService.reColoredSquare[threatningSoldierSquareID] = true;
+            }
+            else Debug.LogError("Şah tehditi square boyamasında bir hata var! (BoardService.cs>ResetAllSquareColor)");
         }
     }
 
